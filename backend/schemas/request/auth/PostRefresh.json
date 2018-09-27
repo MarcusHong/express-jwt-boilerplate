@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "accessToken": {
+      "type": "string",
+      "minLength": 3
+    },
+    "refreshToken": {
+      "type": "string",
+      "minLength": 3
+    }
+  },
+  "required": [
+    "accessToken",
+    "refreshToken"
+  ]
+}
