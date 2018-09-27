@@ -1,4 +1,4 @@
-# express jwt boilerplate
+# express + jwt + swagger boilerplate
 
 > jwt
 > swagger
