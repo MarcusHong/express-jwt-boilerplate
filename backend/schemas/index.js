@@ -32,9 +32,7 @@ function convert(data, schema, options) {
   if (options) ajv = new Ajv(options)
   else ajv = defaultAjv
 
-  const validate = ajv.compile(ajvObject)
-  if (!validate(data)) {
-    ajv.validate(ajvObject, data)
+  if (!ajv.validate(ajvObject, data) {
     throw ajv.errorsText()
   }
 }
