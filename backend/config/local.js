@@ -9,7 +9,7 @@ module.exports = {
     port: '3306',
     connectionLimit: '10',
     timezone: 'utc',
-    debug: ['ComQueryPacket', 'RowDataPacket']
+    debug: ['RowDataPacket']
   },
   redis: {
     host: 'localhost',

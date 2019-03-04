@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
 
 #update instance
-sudo yum -y update
+sudo apt-get update
 
-# add nodejs to yum
-curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
-curl -sL https://rpm.nodesource.com/setup_8.x | sudo bash -
-sudo yum -y install nodejs npm git yarn
-sudo yum -y install ImageMagick
+# install packages
+sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
 
-# install pm2 module globally
-sudo npm install -g pm2
-pm2 update
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
 
-ssh -o StrictHostKeyChecking=no git@bitbucket.org
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+sudo curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+

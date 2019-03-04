@@ -1,17 +1,19 @@
 'use strict'
 
-const config = require('../config/index')
 const mysql = require('mysql')
+const config = require('../config')
 const Schemas = require('../schemas/index')
+const Code = require('../libs/code')
 
 const pool = mysql.createPool({
   ...config.database,
   typeCast: function (field, next) {
     if ((field.type === 'TINY' || field.type === 'TINYINT') && field.length === 1) {
       return (field.string() === '1')
-    }
-    else if (field.type === 'JSON') {
-      return JSON.parse(field.string())
+    } else if (field.type === 'JSON') {
+      const json = JSON.parse(field.string())
+      if (Array.isArray(json)) return json.filter(i => i)
+      return json
     }
     return next()
   }
@@ -21,12 +23,13 @@ module.exports.query = (options) => {
   return new Promise((resolve, reject) => {
     try {
       let target = options.connection ? options.connection : pool
-      target.query({sql: options.sql, values: options.values, nestTables: options.nestTables},
+      let sql = mysql.format(options.sql, options.values)
+      console.log(sql + '\n')
+      target.query({sql: sql, nestTables: options.nestTables},
         (error, results, fields) => {
           if (error) {
             reject(error)
-          }
-          else {
+          } else {
             if (options.schema) {
               results.forEach(row => {
                 Schemas.convert(row, options.schema, {useDefaults: true, removeAdditional: true})
@@ -35,8 +38,22 @@ module.exports.query = (options) => {
             resolve(results)
           }
         })
+    } catch (e) {
+      reject(e)
     }
-    catch (e) {
+  })
+}
+
+module.exports.getConnection = () => {
+  return new Promise((resolve, reject) => {
+    try {
+      pool.getConnection((err, connection) => {
+        if (err) reject(err)
+        else {
+          resolve(connection)
+        }
+      })
+    } catch (e) {
       reject(e)
     }
   })
@@ -46,17 +63,14 @@ module.exports.query = (options) => {
 module.exports.beginTransaction = () => {
   return new Promise((resolve, reject) => {
     try {
-      pool.getConnection((err, connection) => {
-        if (err) reject(err)
-        else {
+      this.getConnection()
+        .then(connection => {
           connection.beginTransaction(err => {
             if (err) reject(this.rollback(connection))
             else resolve(connection)
           })
-        }
-      })
-    }
-    catch (e) {
+        })
+    } catch (e) {
       reject(e)
     }
   })
@@ -72,8 +86,7 @@ module.exports.commit = (connection) => {
           resolve()
         }
       })
-    }
-    catch (e) {
+    } catch (e) {
       reject(e)
     }
   })
@@ -89,9 +102,32 @@ module.exports.rollback = (connection) => {
           resolve()
         }
       })
-    }
-    catch (e) {
+    } catch (e) {
       reject(e)
     }
   })
+}
+
+module.exports.reduceNull = (rows, property, key, keyToInt) => {
+  try {
+    return rows.map(row => {
+      if (!Array.isArray(row[property])) {
+        row[property] = Object.keys(row[property]).reduce((prev, curr) => {
+          if (curr !== 'null') {
+            const newItem = row[property][curr]
+            newItem[key] = keyToInt ? parseInt(curr) : curr
+            prev.push(newItem)
+          }
+          return prev
+        }, [])
+      }
+      row[property] = row[property].reduce((prev, curr) => {
+        if (curr[key]) prev.push(curr)
+        return prev
+      }, [])
+      return row
+    })
+  } catch (e) {
+    return rows
+  }
 }

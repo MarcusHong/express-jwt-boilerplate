@@ -51,12 +51,7 @@ module.exports.createRefreshToken = async (data, tokenSecret) => {
 
 module.exports.decodeToken = async (token) => {
   try {
-    if (token && token.split(' ')[0] === 'Bearer') {
-      return await jwt.verify(token.split(' ')[1], publicKey, {algorithms: 'RS256'})
-    }
-    else {
-      throw 'AccessToken is empty'
-    }
+    return await jwt.verify(token, publicKey, {algorithms: 'RS256'})
   } catch (err) {
     throw {status: 401, message: err}
   }

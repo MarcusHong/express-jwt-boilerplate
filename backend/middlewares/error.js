@@ -6,8 +6,12 @@ const createError = require('http-errors')
 function errorHandler(err, req, res, next) {
   if (err && req.app.get('env') === 'production') {
     delete err.stack
+  } else {
+    console.log(err)
   }
-  res.status(err.status || 500).json(serializeError(err) || {}).end()
+  const status = err.status || 500
+  delete err.status
+  res.status(status).json(serializeError(err) || {}).end()
 }
 
 module.exports = (app) => {
