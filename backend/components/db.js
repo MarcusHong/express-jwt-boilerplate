@@ -3,7 +3,6 @@
 const mysql = require('mysql')
 const config = require('../config')
 const Schemas = require('../schemas/index')
-const Code = require('../libs/code')
 
 const pool = mysql.createPool({
   ...config.database,
