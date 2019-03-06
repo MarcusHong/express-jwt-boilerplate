@@ -9,7 +9,7 @@ module.exports.postRegister = async (req, res, next) => {
   try {
     const {email, password} = req.options
     const {user, refreshHash} = await User.createUser({email, password}, connection)
-    const accessToken = await JWT.createAccessToken(user)
+    const accessToken = await JWT.createAccessToken({user_id: user.id})
     const refreshToken = await JWT.createRefreshToken(user, refreshHash)
     await db.commit(connection)
     res.status(201).json({accessToken, refreshToken})
@@ -30,7 +30,7 @@ module.exports.postAuth = async (req, res, next) => {
 
     const user = await User.findOne({email})
     if (user && await User.verifyPassword(password, user.password, user.salt)) {
-      const accessToken = await JWT.createAccessToken(user)
+      const accessToken = await JWT.createAccessToken({user_id: user.id})
       const refreshToken = await JWT.createRefreshToken(user, user.refresh)
       res.status(200).json({accessToken, refreshToken})
     }
@@ -48,7 +48,7 @@ module.exports.putAuth = async (req, res, next) => {
     const {password, newPassword} = req.options
     if (password === newPassword) return res.status(409).json()
 
-    const user = await User.findOne({user_id: req.user_id})
+    const user = await User.findOne({id: req.user_id})
     if (user && await User.verifyPassword(password, user.password, user.salt)) {
       const refreshSecret = await User.updatePassword({user_id: req.user_id, password: newPassword})
       const refreshToken = await JWT.createRefreshToken({user_id: req.user_id}, refreshSecret)

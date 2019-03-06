@@ -50,9 +50,8 @@ module.exports.createUser = async (options, connection) => {
   }
 }
 
-module.exports.updatePassword = async (options) => {
+module.exports.updatePassword = async ({password, id}) => {
   try {
-    const {password, user_id} = options
     const refreshHash = generateRandomHash(64)
     const passwordHash = await createPasswordHash(password)
     await db.query({
@@ -61,7 +60,7 @@ module.exports.updatePassword = async (options) => {
         password: passwordHash.password,
         salt: passwordHash.salt,
         refresh: refreshHash
-      }, {user_id}]
+      }, {id}]
     })
     return refreshHash
   }

@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
   try {
     let {authorization} =  req.headers
     if (authorization && authorization.split(' ')[0] === 'Bearer') {
-      const jwtToken = await Jwt.decodeToken(req.headers.authorization)
+      const jwtToken = await Jwt.decodeToken(authorization.split(' ')[1])
       if (jwtToken.sub) {
         req.user_id = jwtToken.sub
         return next()
