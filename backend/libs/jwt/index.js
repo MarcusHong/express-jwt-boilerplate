@@ -13,7 +13,7 @@ module.exports.refreshToken = async (options) => {
     delete payload.exp;
     delete payload.nbf;
     delete payload.jti
-    return await this.createAccessToken(payload)
+    return await this.createAccessToken({user_id: payload.sub})
   } catch (err) {
     throw {status: 401, message: err}
   }
