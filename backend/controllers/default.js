@@ -16,5 +16,6 @@ module.exports.ApiRouter = class {
     this.middlewares = object.middlewares || []
     this.isPublic = object.isPublic || false
     this.fileNames = object.fileNames || []
+    this.coerceTypes = object.coerceTypes === undefined ? 'array' : object.coerceTypes
   }
 }

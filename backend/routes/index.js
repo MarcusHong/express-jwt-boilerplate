@@ -24,7 +24,7 @@ function getController(path, obj, app) {
         }
         else { url = `${path}/${key}` }
 
-        const args = [requestMiddleware(ctrl.paths, ctrl.schema), ...ctrl.middlewares, ctrl.handler]
+        const args = [requestMiddleware(ctrl.paths, ctrl.schema, ctrl.coerceTypes), ...ctrl.middlewares, ctrl.handler]
 
         if (!ctrl.isPublic) args.unshift(jwtMiddleware)
 
