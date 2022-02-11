@@ -8,7 +8,7 @@
     "start": "NODE_ENV=production node ./bin/www"
   },
   "dependencies": {
-    "ajv": "^6.10.2",
+    "ajv": "^6.12.3",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "^4.17.1",
